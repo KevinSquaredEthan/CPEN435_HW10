@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.Collections;
+import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -21,12 +23,22 @@ public class TermPairCount {
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
-      ArrayList<String> A = new ArrayList<String>();
+      ArrayList<Text> A = new ArrayList<Text>(); // Text not String
       StringTokenizer itr = new StringTokenizer(value.toString());
-      while (itr.hasMoreTokens()) {
-        if()
-      //  word.set(itr.nextToken());
-      //  context.write(word, one);
+      while (itr.hasMoreTokens()) { 
+	// this loop will find a list of unique words in a line
+	word.set(itr.nextToken());
+        if(A.contains(word) == false)
+	  A.add(word);
+      }
+      Collections.sort(A); // in ascending order 
+      for(int i = 0; i < A.size(); ++i) {
+        context.write(A.get(i), one); //w[i] emit
+	for(int j = i; j < A.size(); ++j) {
+	  word.set(A.get(i)+" : "+A.get(j));
+          context.write(word, one); 
+	  //emit pair of w[i] and w[j]
+	}
       }
     }
   }
