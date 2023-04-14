@@ -23,19 +23,24 @@ public class TermPairCount {
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
-      ArrayList<Text> A = new ArrayList<Text>(); // Text not String
-      StringTokenizer itr = new StringTokenizer(value.toString());
+      ArrayList<String> A = new ArrayList<String>(); // String not Text, as sort works with strings
+      StringTokenizer itr = new StringTokenizer(value.toString(),"\n"); // iterate through each line
       while (itr.hasMoreTokens()) { 
+	StringTokenizer itr2 = new StringTokenizer(itr.nextToken(), " ");
 	// this loop will find a list of unique words in a line
-	word.set(itr.nextToken());
-        if(A.contains(word) == false)
-	  A.add(word);
+	while(itr2.hasMoreTokens()) {
+	 String temp = itr2.nextToken();
+         if(A.contains(temp) == false)
+	   A.add(temp);
+	}
       }
       Collections.sort(A); // in ascending order 
       for(int i = 0; i < A.size(); ++i) {
-        context.write(A.get(i), one); //w[i] emit
-	for(int j = i; j < A.size(); ++j) {
-	  word.set(A.get(i)+" : "+A.get(j));
+	String wi = A.get(i);
+	word.set(wi);
+        context.write(word, one); //w[i] emit
+	for(int j = i+1; j < A.size(); ++j) {
+	  word.set(wi+" : "+A.get(j));
           context.write(word, one); 
 	  //emit pair of w[i] and w[j]
 	}
